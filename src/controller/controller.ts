@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 import { CHANNEL_CLOCK, CHANNEL_SEND_TMP, CHANNEL_ASK_STATE_CHAUD, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD } from '../socket_channel';
-import { env_temp, temp_ref, crtl_mode, plage, daytime, clockInterval } from '../store/env_store';
+import { env_temp, temp_ref, crtl_mode, plage, daytime, clockInterval, lunchReport } from '../store/env_store';
 import { STATE_DESACTIVE, STATE_UNKNOWN } from './chaudiere';
 
 let socket: any = null;
@@ -12,12 +12,8 @@ let chaudiere_state = STATE_UNKNOWN;
 let canHaveReport = true;
 
 function init(cbSucess: any, cbError: any) {
-    if(socket) return;
-    socket = io(process.env.VUE_APP_SOCKET_URI || "localhost:3000", {
-        autoConnect: true,
-        reconnection: false,
-        transports: ['websocket'],
-    });
+    if (socket) return;
+    socket = io(process.env.VUE_APP_SOCKET_URI || "localhost:3000", { transports: ['websocket'], reconnectionDelay: 2000 });
     socket.on('connect', () => { cbSucess('socket controller connected'); });
 
     socket.on(CHANNEL_STATE_CHAUD, (state: any) => { chaudiere_state = state; });
@@ -56,9 +52,10 @@ function init(cbSucess: any, cbError: any) {
 function gestionStart(rapport: string | undefined = undefined) {
     if (rapport) {
         console.log(rapport)
+        lunchReport.value = rapport;
     } else {
         if (chaudiere_state === STATE_UNKNOWN)
-            console.log("Problème de communication avec la chaudière");
+            lunchReport.value = "Problème de communication avec la chaudière";
         else
             console.log("Chaudière démarrée");
     }

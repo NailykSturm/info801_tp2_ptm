@@ -1,8 +1,10 @@
 // import { MODE_REGULE } from "../controller/controller";
-import { ref, computed } from "vue";
+import { ref, computed, Ref } from "vue";
 
 import { MODE_REGULE } from "../controller/controller";
 
+export const lunchReport: Ref<null|string> = ref(null);
+export const simulPause = ref(true);
 export const nbTicks = ref(4);
 export const clockInterval = computed(() => { return 1000 / nbTicks.value });
 export const temp_ref = ref(20);

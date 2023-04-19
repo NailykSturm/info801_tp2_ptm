@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "socket_serv": "node ./dist/socket.js"
+    "socket_serv": "node ./dist/socket.js",
+    "socket_serv_dev": "tsc ./src/socket.ts && node ./src/socket.js"
   },
   "dependencies": {
     "child_process": "^1.0.2",

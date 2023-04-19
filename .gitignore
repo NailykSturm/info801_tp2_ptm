@@ -3,9 +3,13 @@ node_modules
 /dist
 package-lock.json
 yarn.lock
+
+# Dev files
 .env.production
 .env.development
 todo.md
+/src/socket.js
+/src/socket_channel.js
 
 # local env files
 .env.local

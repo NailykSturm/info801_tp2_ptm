@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { ref, watch } from 'vue';
 
 import { CHANNEL_ASK_STATE_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD } from '../socket_channel'
 import { disjoncteur, proba_panne, proba_err_comm } from '../store/env_store';
@@ -8,23 +9,21 @@ let socket: any | null = null;
 export const STATE_ACTIVE = 'active';
 export const STATE_DESACTIVE = 'desactive';
 export const STATE_UNKNOWN = 'unknown';
-let state = STATE_DESACTIVE;
+const state = ref(STATE_DESACTIVE);
 
 function init(cbSucess: any, cbError: any) {
     if (socket) return;
-    socket = io(process.env.VUE_APP_SOCKET_URI || "localhost:3000", {
-        autoConnect: true,
-        reconnection: false,
-        transports: ['websocket'],
-    });
+    socket = io(process.env.VUE_APP_SOCKET_URI || "localhost:3000", { transports: ['websocket'], reconnectionDelay: 2000 });
     socket.on('connect', () => { cbSucess('socket chaudiere connected'); });
-    socket.on(CHANNEL_ASK_STATE_CHAUD, () => { socket.emit(CHANNEL_STATE_CHAUD, state) });
+    socket.on(CHANNEL_ASK_STATE_CHAUD, () => { if (disjoncteur.value) socket.emit(CHANNEL_STATE_CHAUD, state.value) });
     socket.on(CHANNEL_ON_CHAUD, () => {
-        state = STATE_ACTIVE;
+        if (!disjoncteur.value) return;
+        state.value = STATE_ACTIVE;
         socket.emit(CHANNEL_ASK_STATE_CHAUD);
     });
     socket.on(CHANNEL_OFF_CHAUD, () => {
-        state = STATE_DESACTIVE;
+        if (!disjoncteur.value) return;
+        state.value = STATE_DESACTIVE;
         socket.emit(CHANNEL_ASK_STATE_CHAUD);
     });
     socket.on(CHANNEL_START_CHAUD, () => {
@@ -37,9 +36,13 @@ function init(cbSucess: any, cbError: any) {
                 }
                 return;
             }
-            state = STATE_ACTIVE;
+            state.value = STATE_ACTIVE;
             socket.emit(CHANNEL_ASK_STATE_CHAUD);
         }
+    });
+    watch(disjoncteur, (val) => {
+        if (!val) state.value = STATE_DESACTIVE;
+        socket?.emit(CHANNEL_STATE_CHAUD, STATE_UNKNOWN);
     });
 }
 

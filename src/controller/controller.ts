@@ -18,7 +18,7 @@ function init(cbSucess: any, cbError: any) {
         reconnection: false,
         transports: ['websocket'],
     });
-    socket.on('connect', () => { console.log('socket controller connected'); });
+    socket.on('connect', () => { cbSucess('socket controller connected'); });
 
     socket.on(CHANNEL_STATE_CHAUD, (state: any) => { chaudiere_state = state; });
     socket.on(CHANNEL_START_CHAUD, () => {

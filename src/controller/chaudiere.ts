@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 import { CHANNEL_ASK_STATE_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD } from '../socket_channel'
-import { disjoncteur, proba_panne } from '../store/env_store';
+import { disjoncteur, proba_panne, proba_err_comm } from '../store/env_store';
 
 let socket: any | null = null;
 
@@ -17,7 +17,7 @@ function init(cbSucess: any, cbError: any) {
         reconnection: false,
         transports: ['websocket'],
     });
-    socket.on('connect', () => { console.log('socket chaudiere connected'); });
+    socket.on('connect', () => { cbSucess('socket chaudiere connected'); });
     socket.on(CHANNEL_ASK_STATE_CHAUD, () => { socket.emit(CHANNEL_STATE_CHAUD, state) });
     socket.on(CHANNEL_ON_CHAUD, () => {
         state = STATE_ACTIVE;
@@ -31,8 +31,8 @@ function init(cbSucess: any, cbError: any) {
         if (!disjoncteur.value) {
             return;
         } else {
-            if (Math.random() < proba_panne.value) {
-                if (Math.random() <= 0.666) {
+            if (Math.random() < proba_panne.value / 100) {
+                if (Math.random() < proba_err_comm.value / 100) {
                     socket.emit(CHANNEL_RAPPORT_CHAUD, `Panne de la chaudière : Erreur n° ${Math.floor(Math.random() * 1000)}`);
                 }
                 return;

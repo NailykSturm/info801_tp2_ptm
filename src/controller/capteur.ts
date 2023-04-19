@@ -14,7 +14,7 @@ function init(cbSucess: any, cbError: any) {
         transports: ['websocket'],
     });
 
-    socket.on('connect', () => { console.log('socket capteur connected'); });
+    socket.on('connect', () => { cbSucess('socket capteur connected'); });
 
     socket.on(CHANNEL_STATE_CHAUD, (state: string) => {
         chaudiere_status = state;

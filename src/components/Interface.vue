@@ -18,17 +18,17 @@
             <n-divider />
             <n-space>
                 <n-text>Mode du controlleur: {{ crtl_mode }}</n-text>
-                <n-button v-if="crtl_mode === MODE_REGULE" @click="() => {crtl_mode = MODE_PROGRAMME}">Passer en mode programme</n-button>
+                <n-button v-if="crtl_mode === MODE_REGULE" @click="() => {crtl_mode = MODE_PROGRAMME}">Passer en mode programmé</n-button>
                 <n-button v-else @click="() => {crtl_mode = MODE_REGULE}">Passer en mode régulé</n-button>
             </n-space>
             <n-divider />
             <n-space class="center">
-                <n-text>Température de reférence:</n-text>
+                <n-text>Température de référence :</n-text>
                 <n-input-number :min="5" :max="35" :step="1" v-model:value="tempRef" style="width: 7vw;" />
             </n-space>
             <n-divider />
             <n-space class="center">
-                <n-text>Nombre de tick par secondes:</n-text>
+                <n-text>Nombre de ticks par secondes :</n-text>
                 <n-input-number :min="0.5" :max="10" :step="0.5" v-model:value="nbTick" style="width: 7vw;" />
             </n-space>
             <n-divider />
@@ -36,11 +36,11 @@
                 <n-text>Probabilité des pannes :</n-text>
                 <n-space vertical class="center">
                     <n-space vertical>
-                        <n-text>Erreur de démarage chaudière:</n-text>
+                        <n-text>Erreur de démarage chaudière :</n-text>
                         <n-slider v-model:value="probaErr" :step="1" />
                     </n-space>
                     <n-space vertical>
-                        <n-text>Erreur de communication:</n-text>
+                        <n-text>Erreur de communication :</n-text>
                         <n-slider v-model:value="probaErrCom" :step="1" />
                     </n-space>
                 </n-space>
@@ -55,11 +55,11 @@
                 <n-space class="center">
                     <n-text
                         :type="chaudiere_state === chaud_states.STATE_ACTIVE ? 'info' : chaudiere_state === chaud_states.STATE_DESACTIVE ? 'warning' : 'error'">
-                        Etat de la chaudière: {{ chaudiere_state }}
+                        Etat de la chaudière : {{ chaudiere_state }}
                     </n-text>
                     <n-divider vertical />
                     <n-space>
-                        <n-text>Etat du disjoncteur: </n-text>
+                        <n-text>Etat du disjoncteur : </n-text>
                         <n-switch v-model:value="disjo" />
                     </n-space>
                     <n-divider vertical />
@@ -70,7 +70,7 @@
                 </n-space>
                 <n-divider />
                 <n-space vertical class="center">
-                    <n-text>Température de l'environnement: {{ tempRef }}°C</n-text>
+                    <n-text>Température de l'environnement : {{ tempRef }}°C</n-text>
                     <n-space >
                         <n-timeline horizontal style="overflow-x: hidden;">
                             <n-timeline-item v-for="step in last_temps" :type="tempLessThanPrevious(step) ? 'warning' : 'info'"
@@ -126,6 +126,7 @@ export default defineComponent({
      * @returns time in hr:min:sec
      */
     function formatTime(time: number) {
+      time = time % (24 * 3600000);
       const hr = Math.floor(time / 3600000);
       const mn = Math.floor((time % 3600000) / 60000);
       const sec = (((time % 3600000) % 60000) / 1000).toFixed(2);

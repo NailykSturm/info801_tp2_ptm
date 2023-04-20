@@ -5,8 +5,8 @@ import { env_temp, temp_ref, crtl_mode, plage, daytime, clockInterval, lunchRepo
 import {STATE_UNKNOWN} from './chaudiere';
 
 let socket: Socket | null = null;
-export const MODE_REGULE = "regule";
-export const MODE_PROGRAMME = "programme";
+export const MODE_REGULE = "régulé";
+export const MODE_PROGRAMME = "programmé";
 
 let chaudiere_state = STATE_UNKNOWN;
 let canHaveReport = true;

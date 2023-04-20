@@ -1,6 +1,6 @@
 import { ref, computed, Ref, ComputedRef } from "vue";
 
-import { MODE_REGULE } from "../controller/controller";
+import { MODE_REGULE } from "@/controller/controller";
 
 export const lunchReport: Ref<null|string> = ref(null);
 export const simulPause: Ref<boolean> = ref(true);

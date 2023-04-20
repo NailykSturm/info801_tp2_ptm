@@ -1,8 +1,8 @@
 import { io, Socket } from 'socket.io-client';
 
-import { CHANNEL_CLOCK, CHANNEL_SEND_TMP, CHANNEL_ASK_STATE_CHAUD, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD } from '../socket_channel';
-import { env_temp, temp_ref, crtl_mode, plage, daytime, clockInterval, lunchReport } from '../store/env_store';
-import { STATE_DESACTIVE, STATE_UNKNOWN } from './chaudiere';
+import { CHANNEL_CLOCK, CHANNEL_SEND_TMP, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD } from '@/socket_channel';
+import { env_temp, temp_ref, crtl_mode, plage, daytime, clockInterval, lunchReport } from '@/store/env_store';
+import {STATE_UNKNOWN} from './chaudiere';
 
 let socket: Socket | null = null;
 export const MODE_REGULE = "regule";
@@ -37,13 +37,9 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
                 socket?.emit(CHANNEL_ON_CHAUD);
             }
         } else {
-            if (inTimeWork(clockTime)) {
-                if (chaudiere_state === STATE_DESACTIVE)
-                    socket?.emit(CHANNEL_ON_CHAUD);
-            } else {
-                if (chaudiere_state !== STATE_DESACTIVE)
-                    socket?.emit(CHANNEL_OFF_CHAUD);
-            }
+            if (inTimeWork(clockTime))
+                socket?.emit(CHANNEL_ON_CHAUD);
+             else socket?.emit(CHANNEL_OFF_CHAUD);
         }
         if (chaudiere_state === STATE_UNKNOWN) {
             socket?.emit(CHANNEL_START_CHAUD);
@@ -53,11 +49,7 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
 }
 
 function inTimeWork(time: number): boolean {
-    if(plage.value.start < plage.value.end){
-        return time >= plage.value.start && time <= plage.value.end;
-    } else {
-        return time >= plage.value.start || time <= plage.value.end;
-    }
+    return plage.value.start < plage.value.end ? plage.value.start <= time && time <= plage.value.end : !(plage.value.start >= time && time >= plage.value.end);
 }
 
 function gestionStart(rapport: string | undefined = undefined) {
@@ -69,7 +61,7 @@ function gestionStart(rapport: string | undefined = undefined) {
             lunchReport.value = "Problème de communication avec la chaudière";
         // else
             // lunchReport.value = "Chaudière démarrée";
-            
+
     }
 }
 

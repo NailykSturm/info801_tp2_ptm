@@ -1,8 +1,8 @@
 import { Socket, io } from 'socket.io-client';
 import { ref, watch } from 'vue';
 
-import { CHANNEL_ASK_STATE_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD } from '../socket_channel'
-import { disjoncteur, proba_panne, proba_err_comm } from '../store/env_store';
+import { CHANNEL_ASK_STATE_CHAUD, CHANNEL_START_CHAUD, CHANNEL_STATE_CHAUD, CHANNEL_OFF_CHAUD, CHANNEL_ON_CHAUD, CHANNEL_RAPPORT_CHAUD } from '@/socket_channel'
+import { disjoncteur, proba_panne, proba_err_comm } from '@/store/env_store';
 
 let socket: Socket | null = null;
 

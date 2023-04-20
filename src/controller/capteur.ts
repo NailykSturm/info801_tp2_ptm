@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 
-import { CHANNEL_CLOCK, CHANNEL_SEND_TMP, CHANNEL_STATE_CHAUD } from '../socket_channel';
-import { env_temp } from '../store/env_store';
+import { CHANNEL_CLOCK, CHANNEL_SEND_TMP, CHANNEL_STATE_CHAUD } from '@/socket_channel';
+import { env_temp } from '@/store/env_store';
 import { STATE_ACTIVE, STATE_DESACTIVE } from './chaudiere';
 
 let socket: Socket | null = null

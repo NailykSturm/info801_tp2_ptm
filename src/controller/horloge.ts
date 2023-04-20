@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
-import { clockInterval, simulPause } from "../store/env_store";
-import { CHANNEL_CLOCK } from "../socket_channel";
+import { clockInterval, simulPause } from "@/store/env_store";
+import { CHANNEL_CLOCK } from "@/socket_channel";
 
 let socket: Socket | null = null
 let time = 0;

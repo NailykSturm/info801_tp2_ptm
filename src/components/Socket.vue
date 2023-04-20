@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const msg = useMessage();
         function cbRes(res: any) { msg.success(res); }
-        function cbErr(res: any) { msg.error(res); }
+        function cbErr(err: any) { msg.error(err); }
 
         capteur(cbRes, cbErr);
         chaud(cbRes, cbErr);

@@ -74,7 +74,7 @@
                     <n-space style="overflow-x: hidden;">
                         <n-timeline horizontal>
                             <n-timeline-item v-for="step in last_temps" type="info"
-                                :title="`${formatTime(tickToMs(step.time))} ms`" :content="`${step.temp}°C`" />
+                                :title="`${formatTime(tickToMs(step.time%day))}`" :content="`${step.temp}°C`" />
                         </n-timeline>
                     </n-space>
                 </n-space>
@@ -121,8 +121,8 @@ export default defineComponent({
         function formatTime(time: number) { 
             const hr = Math.floor(time / 3600000);
             const mn = Math.floor((time % 3600000) / 60000);
-            const sec = Math.floor(((time % 3600000) % 60000) / 1000);
-            return `${hr}:${mn}:${sec}`;    
+            const sec = (((time % 3600000) % 60000) / 1000).toFixed(2);
+            return `${hr < 10 ? '0'+hr : hr}h${mn < 10 ? '0'+mn : mn}:${parseInt(sec) < 10 ? '0'+sec : sec}`;    
         }
         function tickToMs(time: number) { return time * env.clockInterval.value; }
         function msToTick(time: number) { return time / env.clockInterval.value; }
@@ -144,6 +144,7 @@ export default defineComponent({
             disjo: env.disjoncteur,
             rapport: env.lunchReport,
             crtl_mode: env.crtl_mode,
+            day: env.daytime,
             daytime,
             chaudiere_state,
             last_temps,

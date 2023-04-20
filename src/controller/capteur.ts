@@ -6,7 +6,7 @@ import { STATE_DESACTIVE } from './chaudiere';
 
 let socket: Socket | null = null
 
-function init(cbSucess: any, cbError: any) {
+function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
     if (socket) return;
     socket = io(process.env.VUE_APP_SOCKET_URI || "localhost:3000", { reconnectionDelay: 2000, transports: ['websocket'], });
 

@@ -32,7 +32,7 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
         } else {
             if (Math.random() < proba_panne.value / 100) {
                 if (Math.random() < proba_err_comm.value / 100) {
-                    socket?.emit(CHANNEL_RAPPORT_CHAUD, `Panne de la chaudière : Erreur n° ${Math.floor(Math.random() * 1000)}`);
+                    socket?.emit(CHANNEL_RAPPORT_CHAUD, `Panne de la chaudière : Erreur n° ${Math.floor(Math.random() * 10)}`);
                 }
                 return;
             }
@@ -41,8 +41,10 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
         }
     });
     watch(disjoncteur, (val) => {
-        if (!val) state.value = STATE_DESACTIVE;
-        socket?.emit(CHANNEL_STATE_CHAUD, STATE_UNKNOWN);
+        if (!val) {
+            state.value = STATE_DESACTIVE;
+            socket?.emit(CHANNEL_STATE_CHAUD, STATE_UNKNOWN);
+        }
     });
 }
 

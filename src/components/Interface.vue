@@ -71,10 +71,10 @@
                 <n-divider />
                 <n-space vertical class="center">
                     <n-text>Température de l'environnement: {{ tempRef }}°C</n-text>
-                    <n-space style="overflow-x: hidden;">
-                        <n-timeline horizontal>
-                            <n-timeline-item v-for="step in last_temps" type="info"
-                                :title="`${formatTime(tickToMs(step.time%day))}`" :content="`${step.temp}°C`" />
+                    <n-space >
+                        <n-timeline horizontal style="overflow-x: hidden;">
+                            <n-timeline-item v-for="step in last_temps" :type="tempLessThanPrevious(step) ? 'warning' : 'info'"
+                                :title="`${formatTime(step.time%day)}`" :content="`${step.temp}°C`" />
                         </n-timeline>
                     </n-space>
                 </n-space>
@@ -103,15 +103,16 @@ export default defineComponent({
         const msg = useMessage()
 
         const chaudiere_state = ref(chaud_states.STATE_UNKNOWN);
-        const last_temps = ref([{ "temp": env.env_temp.value, "time": 0 }]);
+        const last_temps = ref([{ "temp": env.env_temp.value, "time": 0, "id": 0 }]);
         const daytime =  computed(() => { return tickToMs(last_temps.value[last_temps.value.length - 1].time) });
 
         const socket = io(process.env.VUE_APP_SOCKET_URI || "localhost:3000", { transports: ['websocket'] });
         socket.on('connect', () => { msg.success('Socket UI connected'); });
         socket.on(chans.CHANNEL_CLOCK, (time) => {
-            last_temps.value.push({ 'time': time, 'temp': env.env_temp.value });
+            last_temps.value.push({ 'time': time, 'temp': env.env_temp.value, "id": last_temps.value.length });
             if (last_temps.value.length > 10) last_temps.value.shift();
         });
+        socket.on(chans.CHANNEL_STATE_CHAUD, (state: string) => { chaudiere_state.value = state; });
 
         /**
          * Function that format the simulation time
@@ -131,13 +132,18 @@ export default defineComponent({
             if (type === 'start') env.plage.value.start = value;
             else env.plage.value.end = value;
         }
+        function tempLessThanPrevious(step: {temp: number, time: number, id: number}): boolean {
+            const elIdx = last_temps.value.findIndex((el) => el.id === step.id);
+            if (elIdx == 0) return false;
+            return step.temp < last_temps.value[elIdx - 1].temp;
+        }
         return {
             MODE_REGULE,
             MODE_PROGRAMME,
             chaud_states,
             pause: env.simulPause,
             plage: env.plage,
-            tempRef: env.env_temp,
+            tempRef: env.temp_ref,
             nbTick: env.nbTicks,
             probaErr: env.proba_panne,
             probaErrCom: env.proba_err_comm,
@@ -151,6 +157,7 @@ export default defineComponent({
             tickToMs,
             formatTime,
             handleConfirmPlage,
+            tempLessThanPrevious,
         }
     }
 });

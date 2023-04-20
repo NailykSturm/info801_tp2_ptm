@@ -31,22 +31,33 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
     socket.on(CHANNEL_CLOCK, (time: number) => {
         const clockTime = time % daytime.value;
         if (crtl_mode.value === MODE_REGULE) {
-            if (env_temp.value > temp_ref.value + 2) {
+            if (env_temp.value >= temp_ref.value + 2) {
                 socket?.emit(CHANNEL_OFF_CHAUD);
-            } else if (env_temp.value < temp_ref.value - 2) {
+            } else if (env_temp.value <= temp_ref.value - 2) {
                 socket?.emit(CHANNEL_ON_CHAUD);
             }
         } else {
-            if (plage.value.start < clockTime && clockTime > plage.value.end) {
-                if (chaudiere_state !== STATE_DESACTIVE)
-                    socket?.emit(CHANNEL_OFF_CHAUD);
-            } else if (plage.value.start > clockTime && clockTime < plage.value.end) {
+            if (inTimeWork(clockTime)) {
                 if (chaudiere_state === STATE_DESACTIVE)
                     socket?.emit(CHANNEL_ON_CHAUD);
+            } else {
+                if (chaudiere_state !== STATE_DESACTIVE)
+                    socket?.emit(CHANNEL_OFF_CHAUD);
             }
+        }
+        if (chaudiere_state === STATE_UNKNOWN) {
+            socket?.emit(CHANNEL_START_CHAUD);
         }
     });
     socket.on(CHANNEL_SEND_TMP, (temp: number) => { env_temp.value = temp });
+}
+
+function inTimeWork(time: number): boolean {
+    if(plage.value.start < plage.value.end){
+        return time >= plage.value.start && time <= plage.value.end;
+    } else {
+        return time >= plage.value.start || time <= plage.value.end;
+    }
 }
 
 function gestionStart(rapport: string | undefined = undefined) {
@@ -56,8 +67,9 @@ function gestionStart(rapport: string | undefined = undefined) {
     } else {
         if (chaudiere_state === STATE_UNKNOWN)
             lunchReport.value = "Problème de communication avec la chaudière";
-        else
-            console.log("Chaudière démarrée");
+        // else
+            // lunchReport.value = "Chaudière démarrée";
+            
     }
 }
 

@@ -17,7 +17,6 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
 
 function boucle() {
     if (!simulPause.value) {
-        console.log(time);
         socket?.emit(CHANNEL_CLOCK, time);
         time += clockInterval.value;
     }

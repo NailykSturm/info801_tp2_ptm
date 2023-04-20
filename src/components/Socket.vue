@@ -10,8 +10,8 @@ import clock from '../controller/horloge';
 export default defineComponent({
     setup() {
         const msg = useMessage();
-        function cbRes(res: any) { msg.success(res); }
-        function cbErr(err: any) { msg.error(err); }
+        function cbRes(res: string) { msg.success(res); }
+        function cbErr(err: string) { msg.error(err); }
 
         capteur(cbRes, cbErr);
         chaud(cbRes, cbErr);

@@ -2,7 +2,7 @@ import { io, Socket } from 'socket.io-client';
 
 import { CHANNEL_CLOCK, CHANNEL_SEND_TMP, CHANNEL_STATE_CHAUD } from '../socket_channel';
 import { env_temp } from '../store/env_store';
-import { STATE_DESACTIVE } from './chaudiere';
+import { STATE_ACTIVE, STATE_DESACTIVE } from './chaudiere';
 
 let socket: Socket | null = null
 
@@ -16,14 +16,17 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
         chaudiere_status = state;
     });
     socket.on(CHANNEL_CLOCK, () => {
-        if (!socket) return;
-        socket.emit(CHANNEL_SEND_TMP, env_temp.value);
-        if (chaudiere_status === STATE_DESACTIVE) {
-            env_temp.value = env_temp.value - parseInt((Math.random() * 0.5).toFixed(2));
+        if (chaudiere_status === STATE_ACTIVE) {
+            env_temp.value = parseFloat((env_temp.value + rdm()).toFixed(2));
         } else {
-            env_temp.value = env_temp.value + parseInt((Math.random() * 0.5).toFixed(2));
+            env_temp.value = parseFloat((env_temp.value - rdm()).toFixed(2));
         }
+        socket?.emit(CHANNEL_SEND_TMP, env_temp.value);
     });
+}
+
+function rdm(): number {
+    return Math.random() * 0.5;
 }
 
 let chaudiere_status = STATE_DESACTIVE;

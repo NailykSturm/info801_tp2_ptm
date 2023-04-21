@@ -23,4 +23,6 @@ function boucle() {
     setTimeout(boucle, clockInterval.value);
 }
 
+export function setTime(new_time: number) { time = new_time; }
+
 export default init;

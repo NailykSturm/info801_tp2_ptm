@@ -10,6 +10,7 @@ export const STATE_ACTIVE = 'active';
 export const STATE_DESACTIVE = 'desactive';
 export const STATE_UNKNOWN = 'unknown';
 const state = ref(STATE_DESACTIVE);
+const canUse = ref(false);
 
 function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
     if (socket) return;
@@ -18,11 +19,13 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
     socket.on(CHANNEL_ASK_STATE_CHAUD, () => { if (disjoncteur.value) socket?.emit(CHANNEL_STATE_CHAUD, state.value) });
     socket.on(CHANNEL_ON_CHAUD, () => {
         if (!disjoncteur.value) return;
+        if (!canUse.value) return;
         state.value = STATE_ACTIVE;
         socket?.emit(CHANNEL_ASK_STATE_CHAUD);
     });
     socket.on(CHANNEL_OFF_CHAUD, () => {
         if (!disjoncteur.value) return;
+        if (!canUse.value) return;
         state.value = STATE_DESACTIVE;
         socket?.emit(CHANNEL_ASK_STATE_CHAUD);
     });
@@ -30,12 +33,14 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
         if (!disjoncteur.value) {
             return;
         } else {
-            if (Math.random() < proba_panne.value / 100) {
-                if (Math.random() < proba_err_comm.value / 100) {
+            if (Math.random() <= proba_panne.value / 100) {
+                if (Math.random() <= proba_err_comm.value / 100) {
                     socket?.emit(CHANNEL_RAPPORT_CHAUD, `Panne de la chaudière : Erreur n° ${Math.floor(Math.random() * 10)}`);
                 }
+                canUse.value = false;
                 return;
             }
+            canUse.value = true;
             state.value = STATE_ACTIVE;
             socket?.emit(CHANNEL_ASK_STATE_CHAUD);
         }

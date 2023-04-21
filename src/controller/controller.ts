@@ -8,8 +8,8 @@ let socket: Socket | null = null;
 export const MODE_REGULE = "régulé";
 export const MODE_PROGRAMME = "programmé";
 
-let chaudiere_state = STATE_UNKNOWN;
-let canHaveReport = true;
+let chaudiere_state: string = STATE_UNKNOWN;
+let canHaveReport: boolean = true;
 
 function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
     if (socket) return;
@@ -18,10 +18,11 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
 
     socket.on(CHANNEL_STATE_CHAUD, (state: string) => { chaudiere_state = state; });
     socket.on(CHANNEL_START_CHAUD, () => {
+        // canHaveReport = true;
         setTimeout(() => {
             canHaveReport = false
             gestionStart();
-        }, clockInterval.value * 10);
+        }, 10 * 1000);
     });
     socket.on(CHANNEL_RAPPORT_CHAUD, (rapport: string) => {
         if (canHaveReport) {
@@ -29,6 +30,10 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
         }
     });
     socket.on(CHANNEL_CLOCK, (time: number) => {
+        if (chaudiere_state == STATE_UNKNOWN || !chaudiere_state) {
+            socket?.emit(CHANNEL_START_CHAUD);
+            return;
+        } 
         const clockTime = time % daytime.value;
         if (crtl_mode.value === MODE_REGULE) {
             if (env_temp.value >= temp_ref.value + 2) {
@@ -40,9 +45,6 @@ function init(cbSucess: (res: string) => void, cbError: (err: string) => void) {
             if (inTimeWork(clockTime))
                 socket?.emit(CHANNEL_ON_CHAUD);
              else socket?.emit(CHANNEL_OFF_CHAUD);
-        }
-        if (chaudiere_state === STATE_UNKNOWN) {
-            socket?.emit(CHANNEL_START_CHAUD);
         }
     });
     socket.on(CHANNEL_SEND_TMP, (temp: number) => { env_temp.value = temp });
@@ -57,8 +59,10 @@ function gestionStart(rapport: string | undefined = undefined) {
         console.log(rapport)
         lunchReport.value = rapport;
     } else {
-        if (chaudiere_state === STATE_UNKNOWN)
+        if (chaudiere_state === STATE_UNKNOWN){
+            console.log("problème de communication avec la chaudière")
             lunchReport.value = "Problème de communication avec la chaudière";
+        }
         // else
             // lunchReport.value = "Chaudière démarrée";
 

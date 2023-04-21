@@ -120,7 +120,7 @@ export default defineComponent({
             msg.success('Socket UI connected');
         });
         socket.on(chans.CHANNEL_CLOCK, (time) => {
-            last_temps.value.push({ 'time': time, 'temp': env.env_temp.value, "id": last_temps.value.length, "parsed": formatTime(tickToMs(time)) });
+            last_temps.value.push({ 'time': time, 'temp': env.env_temp.value, "id": last_temps.value.length, "parsed": formatTime(time) });
             if (last_temps.value.length > 10) last_temps.value.shift();
         });
         socket.on(chans.CHANNEL_STATE_CHAUD, (state: string) => {
